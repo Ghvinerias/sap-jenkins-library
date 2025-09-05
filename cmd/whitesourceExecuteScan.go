@@ -213,7 +213,7 @@ func whitesourceExecuteScan(config ScanOptions, _ *telemetry.CustomData, commonP
 
 func runWhitesourceExecuteScan(ctx context.Context, config *ScanOptions, scan *ws.Scan, utils whitesourceUtils, sys whitesource, commonPipelineEnvironment *whitesourceExecuteScanCommonPipelineEnvironment, influx *whitesourceExecuteScanInflux) error {
 	if config != nil && config.PrivateModules != "" && config.PrivateModulesGitToken != "" {
-		//configuring go private packages
+		// configuring go private packages
 		if err := golang.PrepareGolangPrivatePackages("WhitesourceExecuteStep", config.PrivateModules, config.PrivateModulesGitToken); err != nil {
 			log.Entry().Warningf("couldn't set private packages for golang, error: %s", err.Error())
 		}
@@ -250,7 +250,6 @@ func runWhitesourceExecuteScan(ctx context.Context, config *ScanOptions, scan *w
 }
 
 func runWhitesourceScan(ctx context.Context, config *ScanOptions, scan *ws.Scan, utils whitesourceUtils, sys whitesource, commonPipelineEnvironment *whitesourceExecuteScanCommonPipelineEnvironment, influx *whitesourceExecuteScanInflux) error {
-
 	// Download Docker image for container scan
 	// ToDo: move it to improve testability
 	if config.BuildTool == "docker" {
@@ -262,7 +261,6 @@ func runWhitesourceScan(ctx context.Context, config *ScanOptions, scan *ws.Scan,
 					return errors.Wrapf(err, "failed to download docker image")
 				}
 			}
-
 		} else {
 			err := downloadDockerImageAsTar(config, utils)
 			if err != nil {
@@ -324,7 +322,6 @@ func checkAndReportScanResults(ctx context.Context, config *ScanOptions, scan *w
 	checkErrors := []string{}
 
 	rPath, err := checkPolicyViolations(ctx, config, scan, sys, utils, reportPaths, influx)
-
 	if err != nil {
 		if !config.FailOnSevereVulnerabilities && log.GetErrorCategory() == log.ErrorCompliance {
 			log.Entry().Infof("policy violation(s) found - step will only create data but not fail due to setting failOnSevereVulnerabilities: false")
@@ -1149,7 +1146,6 @@ func createToolRecordWhitesource(utils whitesourceUtils, workspace string, confi
 }
 
 func downloadMultipleDockerImageAsTar(config *ScanOptions, utils whitesourceUtils) error {
-
 	imageNameToSave := strings.Replace(config.ScanImage, "/", "-", -1)
 
 	saveImageOptions := containerSaveImageOptions{
@@ -1180,6 +1176,7 @@ func downloadMultipleDockerImageAsTar(config *ScanOptions, utils whitesourceUtil
 }
 
 func downloadDockerImageAsTar(config *ScanOptions, utils whitesourceUtils) error {
+	imageNameToSave := strings.Replace(config.ProjectName, "/", "-", -1)
 
 	saveImageOptions := containerSaveImageOptions{
 		ContainerImage:            config.ScanImage,
@@ -1187,8 +1184,8 @@ func downloadDockerImageAsTar(config *ScanOptions, utils whitesourceUtils) error
 		ContainerRegistryUser:     config.ContainerRegistryUser,
 		ContainerRegistryPassword: config.ContainerRegistryPassword,
 		DockerConfigJSON:          config.DockerConfigJSON,
-		FilePath:                  config.ProjectName, // consider changing this to config.ScanPath + "/" + config.ProjectName
-		ImageFormat:               "legacy",           // keep the image format legacy or whitesource is not able to read layers
+		FilePath:                  imageNameToSave, // previously was config.ProjectName
+		ImageFormat:               "legacy",        // keep the image format legacy or whitesource is not able to read layers
 	}
 	dClientOptions := piperDocker.ClientOptions{ImageName: saveImageOptions.ContainerImage, RegistryURL: saveImageOptions.ContainerRegistryURL, LocalPath: "", ImageFormat: "legacy"}
 	dClient := &piperDocker.Client{}
