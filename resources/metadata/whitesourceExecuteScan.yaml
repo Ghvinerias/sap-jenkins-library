@@ -236,6 +236,8 @@ spec:
         description: Whether to fail the step on severe vulnerabilties or not
         scope:
           - PARAMETERS
+          - STAGES
+          - STEPS
         default: true
       - name: includes
         type: "[]string"
@@ -256,8 +258,7 @@ spec:
           - name: whitesource/jreDownloadUrl
             deprecated: true
         type: string
-        description:
-          "URL used for downloading the Java Runtime Environment (JRE) required to run the WhiteSource Unified Agent."
+        description: "URL used for downloading the Java Runtime Environment (JRE) required to run the WhiteSource Unified Agent."
         scope:
           - GENERAL
           - PARAMETERS
